@@ -6,10 +6,11 @@ from d4rl.locomotion.wrappers import NormalizedBoxEnv
 import torch
 from PIL import Image
 import os
-
+import time
 
 def reset_data():
     return {'observations': [],
+            'next_observations': [],
             'actions': [],
             'terminals': [],
             'timeouts': [],
@@ -19,8 +20,9 @@ def reset_data():
             'infos/qvel': [],
             }
 
-def append_data(data, s, a, r, tgt, done, timeout, env_data):
+def append_data(data, s, a, r, tgt, done, timeout, env_data, ns):
     data['observations'].append(s)
+    data['next_observations'].append(ns)
     data['actions'].append(a)
     data['rewards'].append(r)
     data['terminals'].append(done)
@@ -111,7 +113,7 @@ def main():
             timeout = True
             #done = True
         
-        append_data(data, s[:-2], act, r, env.target_goal, done, timeout, env.physics.data)
+        append_data(data, s[:-2], act, r, env.target_goal, done, timeout, env.physics.data, ns[:-2])
 
         if len(data['observations']) % 10000 == 0:
             print(len(data['observations']))
@@ -135,12 +137,14 @@ def main():
         if args.video:
             curr_frame = env.physics.render(width=500, height=500, depth=False)
             frames.append(curr_frame)
+        # env.render('human')
     
     if args.noisy:
         fname = args.env + '_maze_%s_noisy_multistart_%s_multigoal_%s.hdf5' % (args.maze, str(args.multi_start), str(args.multigoal))
     else:
         fname = args.env + 'maze_%s_multistart_%s_multigoal_%s.hdf5' % (args.maze, str(args.multi_start), str(args.multigoal))
     dataset = h5py.File(fname, 'w')
+
     npify(data)
     for k in data:
         dataset.create_dataset(k, data=data[k], compression='gzip')

@@ -1,0 +1,1 @@
+cp -r ./datasets/raw_dataset_with_sparse_reward/ /Users/yxqu/Desktop/Research/GuDA/GuidedDataAugmentationForRobotics/src/datasets/

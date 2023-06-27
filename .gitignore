@@ -128,3 +128,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+scripts/generation/random_sampled_actions/datasets/
